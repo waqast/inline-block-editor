@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inline Block Editor (IBE) v1.0.0 — Documentation</title>
+    <meta name="description" content="Complete documentation for the Inline Block Editor (IBE), a portable, framework-agnostic, block-based inline HTML editor.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Style Sheet -->
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --sidebar-width: 280px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --font-sans: 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
+            --font-heading: 'Outfit', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        aside {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            overflow-y: auto;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .logo-text {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .version-badge {
+            font-size: 0.7rem;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.03);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active a {
+            color: white;
+            background-color: var(--accent-glow);
+            border-left: 3px solid var(--accent);
+            padding-left: calc(1rem - 3px);
+        }
+
+        /* Main Workspace */
+        main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 3rem 4rem;
+            max-width: 1000px;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        h1 {
+            font-family: var(--font-heading);
+            font-size: 2.75rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+
+        /* Document Layout Elements */
+        section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 2rem;
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h3 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            color: white;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+        }
+
+        ul, ol {
+            color: var(--text-secondary);
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        li strong {
+            color: white;
+        }
+
+        /* Cards & Features List */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: white;
+        }
+
+        .feature-card-header i {
+            color: var(--accent);
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* API Table Styling */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-secondary);
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.02);
+            color: white;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #f43f5e;
+        }
+
+        /* Alerts Styling */
+        .info-callout {
+            background-color: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-left: 4px solid var(--accent);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .info-callout i {
+            color: var(--accent);
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .info-callout p {
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        /* Code Block Wrapper */
+        pre {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            color: #e2e8f0;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-lang-label {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* Highlight classes */
+        .comment { color: var(--text-muted); }
+        .keyword { color: #f43f5e; font-weight: 600; }
+        .string { color: #10b981; }
+        .function { color: #3b82f6; }
+        .number { color: #f59e0b; }
+        .tag { color: #60a5fa; }
+        .attr { color: #f472b6; }
+
+        /* Keyboard shortcut styling */
+        kbd {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: var(--font-mono);
+            font-size: 0.8em;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 1024px) {
+            aside {
+                display: none;
+            }
+            main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside>
+        <div class="logo-area">
+            <div class="logo-icon">
+                <i data-lucide="edit-3"></i>
+            </div>
+            <span class="logo-text">IBE</span>
+            <span class="version-badge">v1.0.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active"><a href="#intro"><i data-lucide="info"></i> Introduction</a></li>
+            <li class="nav-item"><a href="#features"><i data-lucide="zap"></i> Key Features</a></li>
+            <li class="nav-item"><a href="#installation"><i data-lucide="download"></i> Installation</a></li>
+            <li class="nav-item"><a href="#getting-started"><i data-lucide="rocket"></i> Getting Started</a></li>
+            <li class="nav-item"><a href="#options"><i data-lucide="settings"></i> Options Reference</a></li>
+            <li class="nav-item"><a href="#methods"><i data-lucide="code-2"></i> Methods API</a></li>
+            <li class="nav-item"><a href="#events"><i data-lucide="radio"></i> Events</a></li>
+            <li class="nav-item"><a href="#blocks"><i data-lucide="grid"></i> Block Reference</a></li>
+            <li class="nav-item"><a href="#styling"><i data-lucide="palette"></i> Styling</a></li>
+            <li class="nav-item"><a href="#lifecycle"><i data-lucide="refresh-cw"></i> Lifecycle</a></li>
+            <li class="nav-item"><a href="#keyboard"><i data-lucide="keyboard"></i> Shortcuts</a></li>
+            <li class="nav-item"><a href="#security"><i data-lucide="shield"></i> Security</a></li>
+            <li class="nav-item"><a href="#browser"><i data-lucide="globe"></i> Browser Support</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header id="intro">
+            <h1>Inline Block Editor (IBE)</h1>
+            <div class="subtitle">A portable, framework-agnostic, block-based inline HTML editor built with native HTML5 contenteditable, ES6+ JavaScript, and CSS custom properties.</div>
+
+            <div class="info-callout">
+                <i data-lucide="info"></i>
+                <div>
+                    <p><strong>v1.0.0</strong> — Completely Portable. Bundled as a Universal Module Definition (UMD) component with built-in paste sanitization, keyboard shortcuts, event system, and CSS custom property theming.</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Features -->
+        <section id="features">
+            <h2>Key Features</h2>
+            <p>Designed to be lightweight, easy to integrate, and fully customizable to fit your CMS or web workspace.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-card-header">
+                        <i data-lucide="layout-grid"></i>
+                        Block Architecture
+                    </div>
+                    <p>Create paragraphs, headings, images, videos, alerts, lists, tables, code blocks, raw HTML, and dividers seamlessly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-header">
+                        <i data-lucide="move"></i>
+                        Drag-and-Drop
+                    </div>
+                    <p>Rearrange blocks smoothly with SortableJS integration. Supports fluid draggable mechanics with animated ghost states.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-header">
+                        <i data-lucide="edit-3"></i>
+                        Floating Toolbars
+                    </div>
+                    <p>Context-sensitive toolbars adapt to each block type — text formatting, image settings, video embeds, table controls, and more.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-header">
+                        <i data-lucide="shield"></i>
+                        CSS-Isolated
+                    </div>
+                    <p>All styles prefixed with <code>.ibe-</code>, keeping your global CSS safe. Full theming via CSS custom properties.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-header">
+                        <i data-lucide="clipboard"></i>
+                        Paste Safe
+                    </div>
+                    <p>Built-in paste sanitizer strips dangerous HTML (scripts, iframes, event handlers). Customize with the <code>onPaste</code> callback.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-header">
+                        <i data-lucide="radio"></i>
+                        Event System
+                    </div>
+                    <p>Subscribe to <code>change</code>, <code>save</code>, <code>block:add</code>, <code>block:delete</code>, <code>block:move</code>, and <code>mode:change</code> events.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-header">
+                        <i data-lucide="keyboard"></i>
+                        Keyboard Shortcuts
+                    </div>
+                    <p><kbd>Ctrl+S</kbd> to save, <kbd>Escape</kbd> to exit edit mode. Native <kbd>Ctrl+B/I/U</kbd> formatting supported.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-header">
+                        <i data-lucide="copy"></i>
+                        Multi-Instance
+                    </div>
+                    <p>Run multiple independent editor instances on the same page without interference. Each has its own scoped state.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation -->
+        <section id="installation">
+            <h2>Installation &amp; Setup</h2>
+            <p>Embed the stylesheet, JavaScript core file, and required icon/sorting libraries into your workspace header.</p>
+
+            <h3>1. Local Library Assets</h3>
+            <p>Link the isolated editor styling sheets and JS scripts from your project folder:</p>
+            <pre><span class="code-lang-label">HTML</span><code><span class="comment">&lt;!-- Editor Stylesheet --&gt;</span>
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"lib/inline-block-editor/inline-block-editor.css"</span>&gt;
+
+<span class="comment">&lt;!-- Editor Core Script --&gt;</span>
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="string">"lib/inline-block-editor/inline-block-editor.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;</code></pre>
+
+            <h3>2. External Libraries (CDN)</h3>
+            <p>Incorporate the vector icons package, draggable sorting engine, and code highlight stylesheets:</p>
+            <pre><span class="code-lang-label">HTML</span><code><span class="comment">&lt;!-- Lucide Icons (Required for toolbars) --&gt;</span>
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="string">"https://unpkg.com/lucide@latest"</span>&gt;&lt;/<span class="tag">script</span>&gt;
+
+<span class="comment">&lt;!-- SortableJS (Optional - for drag-and-drop block sorting) --&gt;</span>
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="string">"https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;
+
+<span class="comment">&lt;!-- Highlight.js (Optional - for code block syntax styling) --&gt;</span>
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css"</span>&gt;
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="string">"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;</code></pre>
+
+            <div class="info-callout">
+                <i data-lucide="info"></i>
+                <div>
+                    <p><strong>Only Lucide is required.</strong> SortableJS enables drag-and-drop; Highlight.js enables syntax highlighting in code blocks. Both degrade gracefully if absent.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Getting Started -->
+        <section id="getting-started">
+            <h2>Getting Started</h2>
+            <p>To launch the editor, place a target layout element in your HTML and instantiate the library with your custom options.</p>
+
+            <h3>1. Define the HTML Container</h3>
+            <pre><span class="code-lang-label">HTML</span><code>&lt;<span class="tag">div</span> <span class="attr">id</span>=<span class="string">"editor-container"</span>&gt;
+    <span class="comment">&lt;!-- Initial content will be migrated into block format automatically --&gt;</span>
+    &lt;<span class="tag">h2</span>&gt;Welcome to the Inline Block Editor&lt;/<span class="tag">h2</span>&gt;
+    &lt;<span class="tag">p</span>&gt;Click anywhere in this paragraph to edit its text inline.&lt;/<span class="tag">p</span>&gt;
+&lt;/<span class="tag">div</span>&gt;</code></pre>
+
+            <h3>2. Initialize the Editor</h3>
+            <pre><span class="code-lang-label">JavaScript</span><code><span class="keyword">const</span> editor = <span class="keyword">new</span> InlineBlockEditor(<span class="string">'#editor-container'</span>, {
+    onSave: <span class="keyword">async</span> (html, metadata) =&gt; {
+        <span class="keyword">const</span> response = <span class="keyword">await</span> fetch(<span class="string">'/api/save'</span>, {
+            method: <span class="string">'POST'</span>,
+            headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+            body: JSON.stringify({ html, id: metadata.pageId })
+        });
+        <span class="keyword">return</span> (<span class="keyword">await</span> response.json()).success;
+    },
+
+    onUpload: <span class="keyword">async</span> (file) =&gt; {
+        <span class="keyword">const</span> formData = <span class="keyword">new</span> FormData();
+        formData.append(<span class="string">'image'</span>, file);
+        <span class="keyword">const</span> res = <span class="keyword">await</span> fetch(<span class="string">'/api/upload'</span>, { method: <span class="string">'POST'</span>, body: formData });
+        <span class="keyword">return</span> (<span class="keyword">await</span> res.json()).url;
+    },
+
+    isDirtyChange: (dirty) =&gt; {
+        console.log(dirty ? <span class="string">'Unsaved changes!'</span> : <span class="string">'Clean.'</span>);
+    }
+});</code></pre>
+        </section>
+
+        <!-- Options API -->
+        <section id="options">
+            <h2>Options API Reference</h2>
+            <p>Customize the editor setup using the following config attributes:</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>endpoint</code></td>
+                            <td><code>String</code></td>
+                            <td><code>""</code></td>
+                            <td>The URL for standard POST form submissions if <code>onSave</code> is not defined.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onSave</code></td>
+                            <td><code>Function</code></td>
+                            <td><code>null</code></td>
+                            <td>Async save handler callback: <code>async (html, metadata) => Boolean</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>onUpload</code></td>
+                            <td><code>Function</code></td>
+                            <td><code>null</code></td>
+                            <td>Async upload handler callback: <code>async (file) => String</code> (Return public URL)</td>
+                        </tr>
+                        <tr>
+                            <td><code>onImageZoom</code></td>
+                            <td><code>Function</code></td>
+                            <td><code>null</code></td>
+                            <td>Image zoom callback: <code>(src, alt, images) => void</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>onPaste</code></td>
+                            <td><code>Function</code></td>
+                            <td><code>null</code></td>
+                            <td>Custom paste processor: <code>(html, plainText) => sanitizedHtml</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>confirm</code></td>
+                            <td><code>Function</code></td>
+                            <td><code>null</code></td>
+                            <td>Async confirm dialog callback: <code>async (title, msg, btnText, type) => Boolean</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>allowedBlocks</code></td>
+                            <td><code>Array</code></td>
+                            <td><code>['p', 'image', 'video', ...]</code></td>
+                            <td>Enabled block types in the insertion menu.</td>
+                        </tr>
+                        <tr>
+                            <td><code>isDirtyChange</code></td>
+                            <td><code>Function</code></td>
+                            <td><code>null</code></td>
+                            <td>Callback fired when the unsaved changes state changes: <code>(isDirty) => void</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>debug</code></td>
+                            <td><code>Boolean</code></td>
+                            <td><code>false</code></td>
+                            <td>Enable debug logging to console.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Methods API -->
+        <section id="methods">
+            <h2>Methods API</h2>
+            <p>Interact programmatically with the active editor instance using these class methods:</p>
+
+            <h3><code>getContent()</code> / <code>getHTML()</code></h3>
+            <p>Returns clean HTML output with all editor artifacts removed.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code><span class="keyword">const</span> htmlOutput = editor.getContent();</code></pre>
+
+            <h3><code>setHTML(html)</code></h3>
+            <p>Replaces editor content with new HTML and re-initializes all blocks.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code>editor.setHTML(<span class="string">'&lt;p&gt;New content loaded.&lt;/p&gt;'</span>);</code></pre>
+
+            <h3><code>save(metadata = {})</code></h3>
+            <p>Triggers the save pipeline, calling <code>onSave</code> or posting to <code>endpoint</code>.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code><span class="keyword">await</span> editor.save({ articleId: <span class="number">45</span> });</code></pre>
+
+            <h3><code>setPreviewMode(preview)</code> / <code>enable()</code> / <code>disable()</code></h3>
+            <p>Enables or disables edit controls globally. Useful for toggling draft mockups vs. static previews.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code>editor.setPreviewMode(<span class="keyword">true</span>);  <span class="comment">// Preview mode</span>
+editor.enable();               <span class="comment">// Edit mode</span>
+editor.disable();              <span class="comment">// Preview mode</span></code></pre>
+
+            <h3><code>isEnabled()</code></h3>
+            <p>Returns <code>true</code> if the editor is in edit mode.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code><span class="keyword">if</span> (editor.isEnabled()) { <span class="comment">/* editing */</span> }</code></pre>
+
+            <h3><code>clear()</code></h3>
+            <p>Removes all blocks and creates a single empty paragraph.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code>editor.clear();</code></pre>
+
+            <h3><code>duplicateBlock(block)</code></h3>
+            <p>Duplicates the given block element and inserts it directly below, complete with regenerated IDs and initialized controls.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code><span class="keyword">const</span> block = container.querySelector(<span class="string">'.ibe-block'</span>);
+editor.duplicateBlock(block);</code></pre>
+
+            <h3><code>destroy()</code></h3>
+            <p>Unbinds all event listeners, destroys Sortable, removes editor UI, and cleans up. Safe to call multiple times.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code>editor.destroy();</code></pre>
+
+            <h3><code>showToast(message)</code></h3>
+            <p>Displays a brief toast notification at the bottom-right of the screen.</p>
+            <pre><span class="code-lang-label">JavaScript</span><code>editor.showToast(<span class="string">'Changes saved!'</span>);</code></pre>
+        </section>
+
+        <!-- Events -->
+        <section id="events">
+            <h2>Events</h2>
+            <p>Register event listeners with <code>on()</code> and remove with <code>off()</code>:</p>
+            <pre><span class="code-lang-label">JavaScript</span><code>editor.on(<span class="string">'change'</span>, () =&gt; console.log(<span class="string">'Content changed'</span>));
+editor.on(<span class="string">'save'</span>, (data) =&gt; console.log(<span class="string">'Saved:'</span>, data.success));
+editor.on(<span class="string">'block:add'</span>, (data) =&gt; console.log(<span class="string">'Added:'</span>, data.type));
+editor.on(<span class="string">'block:delete'</span>, (data) =&gt; console.log(<span class="string">'Deleted:'</span>, data.type));
+editor.on(<span class="string">'block:move'</span>, () =&gt; console.log(<span class="string">'Block reordered'</span>));
+editor.on(<span class="string">'mode:change'</span>, (data) =&gt; console.log(<span class="string">'Preview:'</span>, data.preview));</code></pre>
+        </section>
+
+        <!-- Blocks Reference -->
+        <section id="blocks">
+            <h2>Block Reference</h2>
+            <p>Below is the structured markup format generated by each editor block option:</p>
+
+            <h3>Standard Block Wrapper</h3>
+            <p>Every block is structured like this:</p>
+            <pre><span class="code-lang-label">HTML</span><code>&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="string">"ibe-block col-12"</span> <span class="attr">data-type</span>=<span class="string">"p"</span>&gt;
+    &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="string">"ibe-block-content"</span>&gt;
+        &lt;<span class="tag">p</span>&gt;Paragraph text content...&lt;/<span class="tag">p</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+&lt;/<span class="tag">div</span>&gt;</code></pre>
+
+            <h3>Available Block Types (<code>data-type</code>)</h3>
+            <ul>
+                <li><strong><code>p</code></strong>: Standard paragraph text.</li>
+                <li><strong><code>h2</code> / <code>h3</code></strong>: Document headings.</li>
+                <li><strong><code>ul</code> / <code>ol</code></strong>: Unordered and ordered lists.</li>
+                <li><strong><code>image</code></strong>: <code>&lt;figure&gt;</code> block with <code>&lt;img&gt;</code>, optional <code>&lt;figcaption&gt;</code>, link wrapping, and aspect ratio setting (<code>.aspect-original</code>).</li>
+                <li><strong><code>video</code></strong>: Responsive iframe container (YouTube/Vimeo) with optional <code>&lt;figcaption&gt;</code>.</li>
+                <li><strong><code>alert</code></strong>: Alert boxes (<code>.alert-box.info</code>, <code>.success</code>, <code>.warning</code>, <code>.danger</code>).</li>
+                <li><strong><code>code</code></strong>: Code block with syntax highlighting and language selector.</li>
+                <li><strong><code>table</code></strong>: Table with bordered/striped styling, add/remove rows and columns.</li>
+                <li><strong><code>html</code></strong>: Raw HTML block with toggle between edit and rendered view.</li>
+                <li><strong><code>hr</code></strong>: Divider block. Supports styles (<code>.ibe-hr-solid</code>, <code>.ibe-hr-dashed</code>, <code>.ibe-hr-dotted</code>, <code>.ibe-hr-double</code>) and widths (<code>.ibe-hr-full</code>, <code>.ibe-hr-medium</code>, <code>.ibe-hr-short</code>).</li>
+            </ul>
+        </section>
+
+        <!-- Styling -->
+        <section id="styling">
+            <h2>Styling &amp; Customization</h2>
+            <p>Override the editor's visual theme using CSS custom properties on the <code>.ibe-container</code> class:</p>
+            <pre><span class="code-lang-label">CSS</span><code>.ibe-container {
+    --ibe-toolbar-bg: #1e1b4b;            <span class="comment">/* Toolbar background */</span>
+    --ibe-accent: #8b5cf6;                 <span class="comment">/* Accent / primary color */</span>
+    --ibe-accent-hover: #7c3aed;
+    --ibe-danger: #ef4444;
+    --ibe-modal-bg: #1e1b4b;               <span class="comment">/* Modal background */</span>
+    --ibe-input-bg: #312e81;               <span class="comment">/* Input backgrounds */</span>
+    --ibe-block-outline: rgba(139, 92, 246, 0.3);
+    --ibe-block-outline-active: #8b5cf6;
+    --ibe-separator-color: #8b5cf6;
+    --ibe-font-mono: 'JetBrains Mono', monospace;
+}</code></pre>
+            <p>See the full list of 20+ CSS custom properties at the top of <code>inline-block-editor.css</code>.</p>
+        </section>
+
+        <!-- Lifecycle -->
+        <section id="lifecycle">
+            <h2>Lifecycle &amp; Multi-Instance</h2>
+
+            <h3>Destroy &amp; Reinitialize</h3>
+            <pre><span class="code-lang-label">JavaScript</span><code>editor.destroy();
+<span class="keyword">const</span> editor2 = <span class="keyword">new</span> InlineBlockEditor(container, options);</code></pre>
+
+            <h3>Multiple Editors</h3>
+            <pre><span class="code-lang-label">JavaScript</span><code><span class="keyword">const</span> editor1 = <span class="keyword">new</span> InlineBlockEditor(<span class="string">'#editor-1'</span>, opts);
+<span class="keyword">const</span> editor2 = <span class="keyword">new</span> InlineBlockEditor(<span class="string">'#editor-2'</span>, opts);
+<span class="comment">// Each instance is fully independent</span></code></pre>
+        </section>
+
+        <!-- Keyboard Shortcuts -->
+        <section id="keyboard">
+            <h2>Keyboard Shortcuts</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><kbd>Ctrl/Cmd + S</kbd></td><td>Save editor content</td></tr>
+                        <tr><td><kbd>Escape</kbd></td><td>Exit current block edit mode</td></tr>
+                        <tr><td><kbd>Ctrl/Cmd + B</kbd></td><td>Bold (native contenteditable)</td></tr>
+                        <tr><td><kbd>Ctrl/Cmd + I</kbd></td><td>Italic (native contenteditable)</td></tr>
+                        <tr><td><kbd>Ctrl/Cmd + U</kbd></td><td>Underline (native contenteditable)</td></tr>
+                        <tr><td><kbd>Ctrl/Cmd + Z</kbd></td><td>Undo (native contenteditable)</td></tr>
+                        <tr><td><kbd>Ctrl/Cmd + Shift + Z</kbd></td><td>Redo (native contenteditable)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Security -->
+        <section id="security">
+            <h2>Security</h2>
+            <ul>
+                <li><strong>Paste sanitization</strong>: All pasted HTML is stripped of <code>&lt;script&gt;</code>, <code>&lt;iframe&gt;</code>, <code>&lt;style&gt;</code>, <code>&lt;object&gt;</code>, <code>&lt;embed&gt;</code>, <code>&lt;form&gt;</code>, and event handler attributes.</li>
+                <li><strong>Template escaping</strong>: All user-provided values interpolated into modal HTML are escaped to prevent XSS via <code>_escAttr()</code>.</li>
+                <li><strong>Custom paste handler</strong>: Use the <code>onPaste</code> option for full control over paste processing.</li>
+            </ul>
+        </section>
+
+        <!-- Browser Support -->
+        <section id="browser">
+            <h2>Browser Support</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Browser</th>
+                            <th>Support</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Chrome</td><td>✅ Latest</td></tr>
+                        <tr><td>Firefox</td><td>✅ Latest</td></tr>
+                        <tr><td>Safari</td><td>✅ Latest</td></tr>
+                        <tr><td>Edge</td><td>✅ Latest</td></tr>
+                        <tr><td>IE 11</td><td>❌ Not supported</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="info-callout">
+                <i data-lucide="info"></i>
+                <div>
+                    <p>The editor relies on <code>document.execCommand</code> for inline formatting, which is deprecated but remains the only cross-browser approach for <code>contenteditable</code> formatting. Modern browsers continue to support it.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Init Lucide icons
+        lucide.createIcons();
+
+        // Smooth scroll for nav items
+        document.querySelectorAll('.nav-item a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                document.querySelector(targetId).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                this.parentElement.classList.add('active');
+            });
+        });
+
+        // Simple Intersection Observer to update active navigation state
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.3
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    const activeNav = document.querySelector(`.nav-item a[href="#${id}"]`);
+                    if (activeNav) {
+                        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                        activeNav.parentElement.classList.add('active');
+                    }
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section, header').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
